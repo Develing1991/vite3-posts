@@ -2,68 +2,31 @@
 	<div>
 		<h2>게시글 목록</h2>
 		<hr class="my-4" />
-		<form @submit.prevent="">
-			<div class="row g-3">
-				<div class="col">
-					<input v-model="params.title_like" type="text" class="form-control" />
-				</div>
-				<div class="col-3">
-					<select v-model="params._limit" name="" id="" class="form-select">
-						<option value="3">3개씩 보기</option>
-						<option value="6">6개씩 보기</option>
-						<option value="9">9개씩 보기</option>
-					</select>
-				</div>
-			</div>
-		</form>
+		<PostFilter
+			v-model:title="params.title_like"
+			v-model:limit="params._limit"
+		/>
 		<hr class="my-4" />
-		<div class="row g-3">
-			<div class="col-4" v-for="post in posts" :key="post.id">
+		<AppGrid :items="posts">
+			<template v-slot="{ item }">
 				<PostItem
-					:title="post.title"
-					:contents="post.contents"
-					:created-at="post.createdAt"
-					@click="goPage(post.id)"
+					:title="item.title"
+					:contents="item.contents"
+					:created-at="item.createdAt"
+					@click="goPage(item.id)"
 				/>
+			</template>
+		</AppGrid>
+		<!-- <div class="row g-3">
+			<div class="col-4" v-for="post in posts" :key="post.id">
+				
 			</div>
-		</div>
-		<nav class="mt-5" aria-label="Page navigation example">
-			<ul class="pagination justify-content-center">
-				<li class="page-item" :class="{ disabled: !(params._page > 1) }">
-					<a
-						class="page-link"
-						href="#"
-						aria-label="Previous"
-						@click.prevent="--params._page"
-					>
-						<span aria-hidden="true">&laquo;</span>
-					</a>
-				</li>
-				<li
-					class="page-item"
-					:class="{ active: params._page === page }"
-					v-for="page in pageCount"
-					:key="page"
-				>
-					<a class="page-link" href="#" @click.prevent="params._page = page">{{
-						page
-					}}</a>
-				</li>
-				<li
-					class="page-item"
-					:class="{ disabled: !(params._page < pageCount) }"
-				>
-					<a
-						class="page-link"
-						href="#"
-						aria-label="Next"
-						@click.prevent="++params._page"
-					>
-						<span aria-hidden="true">&raquo;</span>
-					</a>
-				</li>
-			</ul>
-		</nav>
+		</div> -->
+		<AppPagenation
+			:current-page="params._page"
+			:page-count="pageCount"
+			@page="page => (params._page = page)"
+		/>
 		<hr class="my-5" />
 		<AppCard>
 			<PostDetailView id="1" />
@@ -78,6 +41,10 @@
 	import { ref, computed, watchEffect } from 'vue';
 	import { getPosts } from '@/api/posts';
 	import { useRouter } from 'vue-router';
+	import AppPagenation from '@/components/AppPagenation.vue';
+	import AppGrid from '@/components/AppGrid.vue';
+	import PostFilter from '@/components/posts/PostFilter.vue';
+
 	const posts = ref([]);
 	const router = useRouter();
 
