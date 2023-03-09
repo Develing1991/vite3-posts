@@ -2,7 +2,9 @@
 	<div>
 		<h2>{{ post.title }}</h2>
 		<p>{{ post.contents }}</p>
-		<p class="text-muted">{{ post.createdAt }}</p>
+		<p class="text-muted">
+			{{ $dayjs(post.createdAt).format('YYYY. MM. DD') }}
+		</p>
 
 		<hr class="my-4" />
 		<div class="row g-2">
@@ -32,11 +34,11 @@
 
 <script setup>
 	import { deletePost, getPostById } from '@/api/posts';
-	import { ref } from 'vue';
+	import { ref, watchEffect } from 'vue';
 	import { useRoute, useRouter } from 'vue-router';
 
 	const props = defineProps({
-		id: String,
+		id: [String, Number],
 	});
 	console.log(props);
 	//PostDeatail/:id 에서 id를 props:true로 해서 넘겨줘서 받으므로 route.id를 사용할 필요가 없음
@@ -81,6 +83,7 @@
 	};
 
 	fetchPost();
+	watchEffect(fetchPost, [props.id]);
 
 	const remove = async () => {
 		try {
